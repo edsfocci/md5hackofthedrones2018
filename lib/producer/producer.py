@@ -95,6 +95,7 @@ if __name__ == '__main__':
 	client.ensure_topic_exists('nodrone')
 
 	# Run the service and push the data
+	print('Pushing data')
 	for _ in range(9):
 		# Get some random points
 		points = get_multiple_points(bounds)
@@ -111,6 +112,7 @@ if __name__ == '__main__':
 			if not point.get('isDrone'):
 				producer.send('nodrone', value=point)
 		
+		print('Sleeping')
 		time.sleep(5)
     
 	sys.exit()
