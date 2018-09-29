@@ -62,8 +62,10 @@
   },
   "dependencies": {
     "core-js": "^2.0.0",
+    "mdbreact": "^4.8.0",
     "normalize.css": "^4.0.0",
-    "react": "^15.0.0",
-    "react-dom": "^15.0.0"
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
+    "reactstrap": "^6.4.0"
   }
 }
