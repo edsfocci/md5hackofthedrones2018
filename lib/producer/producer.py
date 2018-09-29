@@ -15,6 +15,36 @@ import sys
 from kafka import KafkaClient, KafkaProducer
 from kafka.errors import KafkaUnavailableError
 
+# Centeral point
+AUSTIN_LAT_LONG = dict(lat=30.267153, lon=-97.743057)
+
+# Build a bounding box for selection
+def get_bounds(center, shift=1.0):
+    	"""Take a dictionary with lat, lon and create the min/max for
+		both lat and long
+		
+		@shift: float value to shift from center
+		
+		Returns dict of min,max lat and lon
+		"""
+		assert(typeof(center) is dict)
+		assert('lat' in center.keys())
+		assert('lon' in center.keys())
+
+		center_lat = center.get('lat')
+		center_lon = center.get('lon')
+		assert(center_lat is not None)
+		assert(center_lon is not None)
+
+		min_lat = center_lat - shift
+		max_lat = center_lat + shift
+
+		min_lon = center_lon - shift
+		max_lon = center_lon + shift
+
+		return dict(min_lat=min_lat, max_lat=max_lat, min_lon=min_lon, max_lon=max_lon)
+
+
 
 if __name__ == '__main__':
 	# URI to EC2
@@ -32,12 +62,12 @@ if __name__ == '__main__':
 	# Create publisher object
 	print('Producer connecting')
 	try:
-		producer = KafkaProducer(bootstrap_servers=[uri],
+		producer = KafkaProducer(bootstrap_servers=uri,
 				acks=1,
 				batch_size=1,
 				retries=1,
-				value_serializer=lambda m: json.dumps(m).encode('ascii'),
-				api_version=(0,10))
+				value_serializer=lambda m: json.dumps(m).encode('ascii'))
+
 	except KafkaUnavailableError as e:
 		print('Kafka producer unavailable')
 		print(e)
