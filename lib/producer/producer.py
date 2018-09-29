@@ -60,35 +60,34 @@ def get_multiple_points(bounds, num_points=10):
 
 
 if __name__ == '__main__':
-    # URI to EC2
-    uri = "ec2-54-210-97-60.compute-1.amazonaws.com:9092"
+	# URI to EC2
+	uri = "ec2-54-236-152-162.compute-1.amazonaws.com:9092"
 
-    # Create kafka client for topic generation
-    print('Client connecting')
-    try:
-        client = KafkaClient(hosts=[uri])
-    except KafkaUnavailableError as e:
-        print('Kafka client unavailable')
-        print(e)
-        sys.exit()
+	# Create kafka client for topic generation
+	print('Client connecting')
+	try:
+		client = KafkaClient(hosts=[uri])
+	except KafkaUnavailableError as e:
+		print('Kafka client unavailable')
+		print(e)
+		sys.exit()
 
-    # Create publisher object
-    print('Producer connecting')
-    try:
-        producer = KafkaProducer(bootstrap_servers=uri,
-                                 acks=1,
-                                 batch_size=1,
-                                 retries=1,
-                                 value_serializer=lambda m: json.dumps(m).encode('ascii'))
+	# Create publisher object
+	print('Producer connecting')
+	try:
+		producer = KafkaProducer(bootstrap_servers=uri,
+			acks=1,
+			batch_size=1,
+			retries=1,
+			value_serializer=lambda m: json.dumps(m).encode('ascii'))
+	except KafkaUnavailableError as e:
+		print('Kafka producer unavailable')
+		print(e)
+		sys.exit()
 
-    except KafkaUnavailableError as e:
-        print('Kafka producer unavailable')
-        print(e)
-        sys.exit()
-
-    # Pull get the random data
-    print('Getting data')
-    bounds = get_bounds(AUSTIN_LAT_LONG)
+	# Pull get the random data
+	print('Getting data')
+	bounds = get_bounds(AUSTIN_LAT_LONG)
 
 	client.ensure_topic_exists('sensors')
 	client.ensure_topic_exists('drone')
@@ -100,19 +99,19 @@ if __name__ == '__main__':
 		# Get some random points
 		points = get_multiple_points(bounds)
 		for point in points:
-			
-			# Send all values 
+
+			# Send all values
 			producer.send('sensors', value=point)
 
 			# Send only true values
 			if point.get('isDrone'):
 				producer.send('drone', value=point)
-				
+
 			# Send only false values
 			if not point.get('isDrone'):
 				producer.send('nodrone', value=point)
-		
+
 		print('Sleeping')
 		time.sleep(5)
-    
-	sys.exit()
+
+sys.exit()
