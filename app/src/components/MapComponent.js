@@ -42,10 +42,13 @@ class MapComponent extends React.Component {
             !isGeolocationEnabled ?
             <div>Geolocation is not enabled</div> :
             (
-              <div>
-                <div>Latitude {coords.latitude}</div>
-                <div>Latitude {coords.longitude}</div>
-              </div>
+              coords ?
+              (
+                <div>
+                  <div>Latitude {coords.latitude}</div>
+                  <div>Latitude {coords.longitude}</div>
+                </div>
+              ) : <div>Fetching location...</div>
             )
           )
         }
