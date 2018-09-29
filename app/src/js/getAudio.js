@@ -1,15 +1,19 @@
 'use strict'
 
 let log = console.log.bind(console),
+  buffer,
+  counter=1,
+  context,
+  chunks,
   id = val => document.getElementById(val),
   ul = id('ul'),
   optInBtn = id('optInBtn'),
+  source,
   start = id('start'),
   stop = id('stop'),
   stream,
   recorder,
-  counter=1,
-  chunks,
+  processor,
   media;
 
 
@@ -32,8 +36,20 @@ optInBtn.onclick = e => {
     recorder = new MediaRecorder(stream);
     recorder.ondataavailable = e => {
       chunks.push(e.data);
-      if(recorder.state == 'inactive')  makeLink();
+      if(recorder.state == 'inactive') {
+        makeLink();
+        submit();
+      }
     };
+    context = new AudioContext();
+    source = context.createMediaStreamSource(stream);
+    processor = context.createScriptProcessor(4096, 1, 1);
+    processor.onaudioprocess = function(e) {
+      // Do something with the data, i.e Convert this to WAV
+      buffer.push(e.inputBuffer);
+      console.log(e.inputBuffer);
+    };
+
     log('got media successfully');
   }).catch(log);
 }
@@ -42,6 +58,7 @@ start.onclick = e => {
   start.disabled = true;
   stop.removeAttribute('disabled');
   chunks=[];
+  buffer =[];
   recorder.start();
 }
 
@@ -54,7 +71,7 @@ stop.onclick = e => {
 
 
 
-function makeLink(){
+function makeLink() {
   let blob = new Blob(chunks, {type: media.type })
     , url = URL.createObjectURL(blob)
     , li = document.createElement('li')
@@ -71,4 +88,30 @@ function makeLink(){
   li.appendChild(mt);
   li.appendChild(hf);
   ul.appendChild(li);
+}
+
+
+function submit() {
+  let blob = new Blob(chunks, {type: media.type });
+  var reader = new window.FileReader();
+  reader.readAsDataURL(blob);
+  reader.onloadend = function() {
+
+    var fd = new FormData();
+    base64data = reader.result;
+    fd.append('file', base64data, 'audio.ogg');
+
+    $.ajax({
+      type: 'POST',
+      url: '/',
+      data: fd,
+      cache: false,
+      processData: false,
+      contentType: false,
+      enctype: 'multipart/form-data'
+    }).done(function(data) {
+      console.log(data);
+    });
+  }
+
 }
