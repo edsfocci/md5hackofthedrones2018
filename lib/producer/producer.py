@@ -9,23 +9,41 @@ Three topics will be created
 
 Multiple topics for UI debugging
 """
-from kafka import KafkaClient, Producer
+import json
+import sys
+
+from kafka import KafkaClient, KafkaProducer
 from kafka.errors import KafkaUnavailableError
 
 
 if __name__ == '__main__':
 	# URI to EC2
-	uri = "54.210.97.60:9092"	
+	uri = "ec2-54-210-97-60.compute-1.amazonaws.com:9092"	
 
 	# Create kafka client for topic generation
+	print('Client connecting')
 	try:
-		client = KafkaClient
+		client = KafkaClient(hosts=[uri])
 	except KafkaUnavailableError as e:
 		print('Kafka client unavailable')
+		print(e)
 		sys.exit()
+
 	# Create publisher object
+	print('Producer connecting')
+	try:
+		producer = KafkaProducer(bootstrap_servers=[uri],
+				acks=1,
+				batch_size=1,
+				retries=1,
+				value_serializer=lambda m: json.dumps(m).encode('ascii'),
+				api_version=(0,10))
+	except KafkaUnavailableError as e:
+		print('Kafka producer unavailable')
+		print(e)
+		sys.exit()
 
 	# Pull get the random data
-
+	print('Getting data')
 	# Publish to topic
-
+	print('Pushing data')
