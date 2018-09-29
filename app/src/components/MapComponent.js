@@ -26,6 +26,40 @@ class MapComponent extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.updateInterval = setInterval(
+      () => this.updateLocation(),
+      3000
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.updateInterval);
+  }
+
+  updateLocation() {
+    const coords = this.getCoords();
+
+    if (coords.latitude && coords.longitude) {
+      this.setState({
+        viewport: {
+          ...this.state.viewport,
+          ...coords
+        }
+      });
+    }
+  }
+
+  getCoords() {
+    const { isGeolocationAvailable, isGeolocationEnabled, coords } = this.props;
+    const useGeolocation = isGeolocationAvailable && isGeolocationEnabled && coords;
+    const newLatitude = useGeolocation ? coords.latitude : 0;
+    const newLongitude = useGeolocation ? coords.longitude : 0;
+    const { latitude, longitude } = this.state ? this.state.viewport : {latitude : 0, longitude: 0};
+
+    return newLatitude === latitude && newLongitude === longitude ? {} : { latitude: newLatitude, longitude: newLongitude }
+  }
+
   render() {
     const { isGeolocationAvailable, isGeolocationEnabled, coords } = this.props;
     return (
