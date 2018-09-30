@@ -1,3 +1,8 @@
 .map-component {
   border: 1px dashed #f00;
 }
+
+.map-container {
+  position: relative;
+  height: 500px;
+}

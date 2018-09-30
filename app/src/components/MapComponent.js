@@ -1,10 +1,15 @@
 'use strict';
 
 import React from 'react';
-import '../styles/Map.css';
-import ReactMapGL from 'react-map-gl';
+import { head } from 'lodash';
 import {geolocated} from 'react-geolocated';
 import config from 'config';
+import { COLOR_RANGE, INITIAL_VIEW_STATE, ELEVATION_SCALE, TIME, HEXAGON_CONFIG } from '../constants';
+
+import {StaticMap} from 'react-map-gl';
+import DeckGL, {HexagonLayer} from 'deck.gl';
+
+import '../styles/Map.css';
 
 class MapComponent extends React.Component {
 
@@ -16,12 +21,11 @@ class MapComponent extends React.Component {
     const useGeolocation = isGeolocationAvailable && isGeolocationEnabled && coords;
 
     this.state = {
-      viewport: {
-        width: 400,
-        height: 400,
+      elevationScale: ELEVATION_SCALE.max,
+      viewState: {
+        ...INITIAL_VIEW_STATE,
         latitude: useGeolocation ? coords.latitude : 0,
-        longitude: useGeolocation ? coords.longitude : 0,
-        zoom: 8
+        longitude: useGeolocation ? coords.longitude : 0
       }
     };
   }
@@ -29,7 +33,7 @@ class MapComponent extends React.Component {
   componentDidMount() {
     this.updateInterval = setInterval(
       () => this.updateLocation(),
-      3000
+      TIME.SECONDS.FIVE
     );
   }
 
@@ -39,15 +43,55 @@ class MapComponent extends React.Component {
 
   updateLocation() {
     const coords = this.getCoords();
-
     if (coords.latitude && coords.longitude) {
       this.setState({
-        viewport: {
-          ...this.state.viewport,
+        viewState: {
+          ...this.state.viewState,
           ...coords
         }
       });
     }
+  }
+
+  separateData(inputData) {
+    const sensors = [];
+    const droneData = [];
+    const now = new Date().getTime();
+    for (let i = 0; i < inputData.length; i++) {
+      const coords = [inputData[i].longitude, inputData[i].latitude];
+      if (inputData[i].isDrone) {
+        if (now - inputData[i].ttl <= 20000) {
+          droneData.push(coords);
+        }
+      }
+      if (now - inputData[i].ttl <= 60000) {
+        sensors.push(coords);
+      }
+    }
+
+    return { sensors, droneData };
+  }
+
+  renderLayers = () => {
+    const { sensors, droneData } = this.separateData(this.props.inputData);
+    return [
+      new HexagonLayer({
+        id: 'sensor_mapping',
+        colorRange: [head(COLOR_RANGE)],
+        data: sensors,
+        elevationRange: [0, 10],
+        elevationScale: 1,
+        ...HEXAGON_CONFIG
+      }),
+      new HexagonLayer({
+        id: 'detection_mapping',
+        colorRange: COLOR_RANGE,
+        data: droneData,
+        elevationRange: [0, 500],
+        elevationScale: this.state.elevationScale,
+        ...HEXAGON_CONFIG
+      })
+    ];
   }
 
   getCoords() {
@@ -55,36 +99,54 @@ class MapComponent extends React.Component {
     const useGeolocation = isGeolocationAvailable && isGeolocationEnabled && coords;
     const newLatitude = useGeolocation ? coords.latitude : 0;
     const newLongitude = useGeolocation ? coords.longitude : 0;
-    const { latitude, longitude } = this.state ? this.state.viewport : {latitude : 0, longitude: 0};
+    const { latitude, longitude } = this.state ? this.state.viewState : {latitude : 0, longitude: 0};
 
     return newLatitude === latitude && newLongitude === longitude ? {} : { latitude: newLatitude, longitude: newLongitude }
   }
 
   render() {
-    const { isGeolocationAvailable, isGeolocationEnabled, coords } = this.props;
+    const { isGeolocationAvailable, isGeolocationEnabled, coords, inputData } = this.props;
     return (
       <div className="map-component">
-        <ReactMapGL
-          {...this.state.viewport}
-          onViewportChange={(viewport) => this.setState({viewport})}
-          mapboxApiAccessToken={config.mapBoxAPIToken}
-        />
         {
-          !isGeolocationAvailable ?
-          <div>Your browser does not support Geolocation</div> :
+          inputData ?
           (
-            !isGeolocationEnabled ?
-            <div>Geolocation is not enabled</div> :
-            (
-              coords ?
-              (
-                <div>
-                  <div>Latitude {coords.latitude}</div>
-                  <div>Latitude {coords.longitude}</div>
-                </div>
-              ) : <div>Fetching location...</div>
-            )
-          )
+            <div>
+              <div className="map-container">
+                <DeckGL
+                  layers={this.renderLayers()}
+                  width="100%"
+                  height={500}
+                  initialViewState={INITIAL_VIEW_STATE}
+                  viewState={this.state.viewState}
+                >
+                  <StaticMap
+                      reuseMaps
+                      mapStyle="mapbox://styles/mapbox/dark-v9"
+                      preventStyleDiffing={true}
+                      mapboxApiAccessToken={config.mapBoxAPIToken}
+                    />
+                </DeckGL>
+              </div>
+              {
+                !isGeolocationAvailable ?
+                <div>Your browser does not support Geolocation</div> :
+                (
+                  !isGeolocationEnabled ?
+                  <div>Geolocation is not enabled</div> :
+                  (
+                    coords ?
+                    (
+                      <div>
+                        <div>Latitude {coords.latitude}</div>
+                        <div>Longitude {coords.longitude}</div>
+                      </div>
+                    ) : <div>Fetching location...</div>
+                  )
+                )
+              }
+            </div>
+          ) : <div>Fetching Data</div>
         }
       </div>
     );

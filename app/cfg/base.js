@@ -22,7 +22,7 @@ module.exports = {
   devServer: {
     contentBase: './src/',
     historyApiFallback: true,
-    hot: true,
+    hot: false,
     port: defaultSettings.port,
     publicPath: defaultSettings.publicPath,
     noInfo: false
