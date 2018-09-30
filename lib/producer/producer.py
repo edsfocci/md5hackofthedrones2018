@@ -77,7 +77,7 @@ if __name__ == '__main__':
 	try:
 		producer = KafkaProducer(bootstrap_servers=uri,
 			acks=1,
-			batch_size=1,
+			batch_size=10,
 			retries=1,
 			value_serializer=lambda m: json.dumps(m).encode('ascii'))
 	except KafkaUnavailableError as e:
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
 	# Run the service and push the data
 	print('Pushing data')
-	for _ in range(9):
+	for _ in range(10000):
 		# Get some random points
 		points = get_multiple_points(bounds)
 		for point in points:
@@ -111,7 +111,8 @@ if __name__ == '__main__':
 			if not point.get('isDrone'):
 				producer.send('nodrone', value=point)
 
-		print('Sleeping')
-		time.sleep(5)
+	producer.flush()
+		#print('Sleeping')
+		#time.sleep(5)
 
 sys.exit()
