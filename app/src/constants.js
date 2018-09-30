@@ -22,7 +22,7 @@ export const HEXAGON_CONFIG = {
   extruded: true,
   getPosition: d => d,
   opacity: 1,
-  radius: 25,
+  radius: 40,
   upperPercentile: 100
 }
 

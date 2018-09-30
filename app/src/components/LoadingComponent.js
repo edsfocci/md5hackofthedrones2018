@@ -2,12 +2,13 @@
 
 import React from 'react';
 import '../styles/Loading.css';
+import logo from '../images/dropwhite.png';
 
 class LoadingComponent extends React.Component {
   render() {
     return (
       <div className="loading-component">
-        <div className="loading-text">LOADING APPLICATION</div>
+        <img className="loading-img" src={logo} />
       </div>
     );
   }

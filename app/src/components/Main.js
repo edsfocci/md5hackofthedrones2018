@@ -17,10 +17,10 @@ class AppComponent extends React.Component {
   }
 
   componentDidMount() {
-    // this.mockStream = setInterval(
-    //   () => this.mockMessage(),
-    //   50
-    // );
+    this.mockStream = setInterval(
+      () => this.mockMessage(),
+      50
+    );
   }
 
   componentWillUnmount() {
@@ -41,20 +41,11 @@ class AppComponent extends React.Component {
     }
   }
   render() {
-    const app = this.state.inputData ?
+    const app = this.state.inputData && this.state.inputData.length > 50 ?
     <div className="index">
-        <MapComponent inputData={[this.state.inputData]}  />
-        <DataLoggerComponent inputData={this.state.inputData} />
-        <div>
-          <button id="start-btn" className="btn">Start recording</button>
-          <button id="stop-btn" className="btn" disabled>Stop recording</button>
-
-          <h2>Stored Recordings</h2>
-          <ul id="recordingslist"></ul>
-
-          <span id="result"></span>
-        </div>
-      </div> : <LoadingComponent />;
+      <MapComponent inputData={this.state.inputData}  />
+      <DataLoggerComponent inputData={this.state.inputData} />
+    </div> : <LoadingComponent />;
     return app;
   }
 }

@@ -24,17 +24,17 @@ class MapComponent extends React.Component {
       elevationScale: ELEVATION_SCALE.max,
       viewState: {
         ...INITIAL_VIEW_STATE,
-        latitude: useGeolocation ? coords.latitude : 0,
-        longitude: useGeolocation ? coords.longitude : 0
+        latitude: 30.2672,
+        longitude: -97.7431
       }
     };
   }
 
   componentDidMount() {
-    this.updateInterval = setInterval(
-      () => this.updateLocation(),
-      TIME.SECONDS.FIVE
-    );
+    // this.updateInterval = setInterval(
+    //   () => this.updateLocation(),
+    //   TIME.SECONDS.FIVE
+    // );
   }
 
   componentWillUnmount() {
