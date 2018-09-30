@@ -26,11 +26,11 @@ def classify():
     #print audio
     #return ''
     salt = str(uuid.uuid1())
-    filepath = '/tmp/{}-audio.wav'.format(salt)
+    filepath = '{}-audio.wav'.format(salt)
     with open(filepath, 'wb') as fout:
         audio.save(fout)
     
-    noise_or_drone = djv.recognize(FileRecognizer, '/tmp/audio.wav').get('song_name')
+    noise_or_drone = djv.recognize(FileRecognizer, filepath).get('song_name')
     
     is_drone = 1 if 'drone' in noise_or_drone else 0
 
