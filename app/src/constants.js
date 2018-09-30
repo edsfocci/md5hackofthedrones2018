@@ -38,7 +38,7 @@ export const ELEVATION_SCALE = {min: 1, max: 2};
 
 export const GRID_BOUNDS = {
   scale: 3,
-  max: 50,
+  max: 30,
   min: 0,
   normalization: 20
 };

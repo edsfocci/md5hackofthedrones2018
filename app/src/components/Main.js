@@ -13,7 +13,8 @@ class AppComponent extends React.Component {
     super();
     this.state = {
       inputData: [],
-      isConnected: false
+      isConnected: false,
+      appLoaded: false
     };
     this.SocketService = new SocketService();
   }
@@ -25,7 +26,16 @@ class AppComponent extends React.Component {
       this.setState({
         isConnected: this.SocketService.connected()
       });
-    })
+    });
+    const loadingTimeout = setTimeout(
+      () => {
+        this.setState({
+          appLoaded: true
+        });
+        clearTimeout(loadingTimeout);
+      },
+      4000
+    );
   }
 
   componentWillUnmount() {
@@ -37,13 +47,15 @@ class AppComponent extends React.Component {
   }
 
   updateInputData(message) {
-    this.setState({
-      inputData: this.state.inputData.concat([message])
-    });
+    if (message && message.latitude && message.longitude) {
+      this.setState({
+        inputData: this.state.inputData.concat([message])
+      });
+    }
   }
 
   render() {
-    const app = this.state.isConnected || this.state.inputData.length > 50 ?
+    const app = this.state.appLoaded ?
     <div className="index">
       <MapComponent inputData={this.state.inputData}  />
       <DataLoggerComponent inputData={this.state.inputData} />
