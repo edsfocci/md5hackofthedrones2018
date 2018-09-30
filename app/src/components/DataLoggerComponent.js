@@ -9,9 +9,12 @@ class DataLoggerComponent extends React.Component {
   }
 
   render() {
-    const log = this.props.inputData.map((data) => {
-      <div>Longitude: {data.longitude}, Latitude: {data.latitude}</div>
+    let log = (this.props.inputData || []).map((data) => {
+      return <div>Longitude: {data.longitude}, Latitude: {data.latitude} Drone Detected {data.isDrone ? 'YES' : 'NO'}</div>
     });
+    if (log.length > 200) {
+      log = log.slice(-200);
+    }
     return (
       <div className="datalogger-component">
         {log}

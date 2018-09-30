@@ -60,16 +60,24 @@ class MapComponent extends React.Component {
     for (let i = 0; i < inputData.length; i++) {
       const coords = [inputData[i].longitude, inputData[i].latitude];
       if (inputData[i].isDrone) {
-        if (now - inputData[i].ttl <= 20000) {
+        if (now - inputData[i].ttl <= TIME.SECONDS.TWENTY) {
           droneData.push(coords);
         }
       }
-      if (now - inputData[i].ttl <= 60000) {
+      if (now - inputData[i].ttl <= TIME.MINUTES.ONE) {
         sensors.push(coords);
       }
     }
 
     return { sensors, droneData };
+  }
+
+  getElevation(points) {
+    return (points.length - 0) / (10 - 0)
+  }
+
+  getColorValue(points) {
+    return (points.length - 0) / (10 - 0)
   }
 
   renderLayers = () => {
@@ -87,8 +95,12 @@ class MapComponent extends React.Component {
         id: 'detection_mapping',
         colorRange: COLOR_RANGE,
         data: droneData,
-        elevationRange: [0, 500],
-        elevationScale: this.state.elevationScale,
+        elevationDomain: [0, 10],
+        colorDomain: [0, 1],
+        elevationRange: [0, 1000],
+        elevationScale: 2,
+        getColorValue: this.getColorValue,
+        getElevation: this.getElevation,
         ...HEXAGON_CONFIG
       })
     ];
@@ -105,7 +117,7 @@ class MapComponent extends React.Component {
   }
 
   render() {
-    const { isGeolocationAvailable, isGeolocationEnabled, coords, inputData } = this.props;
+    const { inputData } = this.props;
     return (
       <div className="map-component">
         {
@@ -128,7 +140,7 @@ class MapComponent extends React.Component {
                     />
                 </DeckGL>
               </div>
-              {
+              {/* {
                 !isGeolocationAvailable ?
                 <div>Your browser does not support Geolocation</div> :
                 (
@@ -144,7 +156,7 @@ class MapComponent extends React.Component {
                     ) : <div>Fetching location...</div>
                   )
                 )
-              }
+              } */}
             </div>
           ) : <div>Fetching Data</div>
         }

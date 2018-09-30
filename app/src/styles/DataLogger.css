@@ -1,8 +1,5 @@
 .datalogger-component {
-  border: 1px dashed #f00;
   width: 100%;
-  height: 400px;
-  background: white;
-  color: black;
-  overflow: scroll;
+  flex: 1;
+  overflow-y: scroll;
 }

@@ -31,7 +31,8 @@ export const ELEVATION_SCALE = {min: 1, max: 2};
 export const TIME = {
   SECONDS: {
     FIVE: 5000,
-    TEN: 10000
+    TEN: 10000,
+    TWENTY: 20000
   },
   MINUTES: {
     ONE: 1000 * 60
