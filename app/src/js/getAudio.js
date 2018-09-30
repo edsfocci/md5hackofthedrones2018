@@ -1,4 +1,5 @@
 'use strict'
+var toWav = require('audiobuffer-to-wav');
 
 let log = console.log.bind(console),
   buffer,
@@ -18,60 +19,79 @@ let log = console.log.bind(console),
 
 
 optInBtn.onclick = e => {
+  chunks = [];
   let mv = id('mediaAudio'),
       mediaOptions = {
         audio: {
           tag: 'audio',
-          type: 'audio/ogg',
-          ext: '.ogg',
+          type: 'audio/wav',
+          ext: '.wav',
           options: {audio: true}
         }
       };
   media = mediaOptions.audio;
+  navigator.geolocation.getCurrentPosition(function(position){
+                var positionInfo = "Your current position is (" + "Latitude: " + position.coords.latitude + ", " + "Longitude: " + position.coords.longitude + ")";
+                document.getElementById("result").innerHTML = positionInfo;
+                console.log(typeof position.coords.latitude);
+                console.log(typeof position.coords.longitude);
+                chunks.push(position.coords.latitude);
+                chunks.push(position.coords.longitude);
+                console.log(`geo chunks: ${chunks}`);
+  });
   navigator.mediaDevices.getUserMedia(media.options).then(_stream => {
     stream = _stream;
+    var context = new AudioContext();
+    var source = context.createMediaStreamSource(stream);
+    var processor = context.createScriptProcessor(1024, 1, 1);
+
+    source.connect(processor);
+    processor.connect(context.destination);
+
+    processor.onaudioprocess = function(e) {
+      // Do something with the data, i.e Convert this to WAV
+      // console.log(e.inputBuffer);
+      var wav = toWav(e.inputBuffer);
+      console.log(wav);
+    };
+
     id('permissions').style.display = 'none';
     id('btns').style.display = 'inherit';
     start.removeAttribute('disabled');
-    recorder = new MediaRecorder(stream);
-    recorder.ondataavailable = e => {
-      chunks.push(e.data);
-      if(recorder.state == 'inactive') {
-        makeLink();
-        submit();
-      }
-    };
-    context = new AudioContext();
-    source = context.createMediaStreamSource(stream);
-    processor = context.createScriptProcessor(4096, 1, 1);
-    processor.onaudioprocess = function(e) {
-      // Do something with the data, i.e Convert this to WAV
-      buffer.push(e.inputBuffer);
-      console.log(e.inputBuffer);
-    };
-
     log('got media successfully');
   }).catch(log);
 }
 
+
+var handleSuccess = function(stream) {
+  var context = new AudioContext();
+  var source = context.createMediaStreamSource(stream);
+  var processor = context.createScriptProcessor(1024, 1, 1);
+
+  source.connect(processor);
+  processor.connect(context.destination);
+
+  processor.onaudioprocess = function(e) {
+    // Do something with the data, i.e Convert this to WAV
+    console.log(e.inputBuffer);
+  };
+};
+
 start.onclick = e => {
   start.disabled = true;
   stop.removeAttribute('disabled');
-  chunks=[];
-  buffer =[];
-  recorder.start();
 }
 
 
 stop.onclick = e => {
   stop.disabled = true;
-  recorder.stop();
   start.removeAttribute('disabled');
 }
 
 
-
-function makeLink() {
+function makeLink(geoObject) {
+  chunks.push(geoObject);
+  console.log(chunks);
   let blob = new Blob(chunks, {type: media.type })
     , url = URL.createObjectURL(blob)
     , li = document.createElement('li')
