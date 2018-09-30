@@ -4,7 +4,7 @@ import React from 'react';
 import { head } from 'lodash';
 import {geolocated} from 'react-geolocated';
 import config from 'config';
-import { COLOR_RANGE, INITIAL_VIEW_STATE, ELEVATION_SCALE, TIME, HEXAGON_CONFIG } from '../constants';
+import { COLOR_RANGE, LIGHT_SETTINGS, INITIAL_VIEW_STATE, GRID_BOUNDS, TIME, HEXAGON_CONFIG } from '../constants';
 
 import {StaticMap} from 'react-map-gl';
 import DeckGL, {HexagonLayer} from 'deck.gl';
@@ -16,12 +16,11 @@ class MapComponent extends React.Component {
   constructor(props) {
     super(props);
 
-    const { isGeolocationAvailable, isGeolocationEnabled, coords } = this.props;
+    // const { isGeolocationAvailable, isGeolocationEnabled, coords } = this.props;
 
-    const useGeolocation = isGeolocationAvailable && isGeolocationEnabled && coords;
+    // const useGeolocation = isGeolocationAvailable && isGeolocationEnabled && coords;
 
     this.state = {
-      elevationScale: ELEVATION_SCALE.max,
       viewState: {
         ...INITIAL_VIEW_STATE,
         latitude: 30.2672,
@@ -72,12 +71,28 @@ class MapComponent extends React.Component {
     return { sensors, droneData };
   }
 
-  getElevation(points) {
-    return (points.length - 0) / (10 - 0)
+  normalize(enteredValue, minEntry, maxEntry, normalizedMin, normalizedMax) {
+
+      const mx = (enteredValue-minEntry)/(maxEntry-minEntry);
+      const preshiftNormalized = mx*(normalizedMax-normalizedMin);
+      const shiftedNormalized = preshiftNormalized + normalizedMin;
+
+      return shiftedNormalized;
+
   }
 
   getColorValue(points) {
-    return (points.length - 0) / (10 - 0)
+    return this.normalize(
+      Math.min(points.length * GRID_BOUNDS.scale, GRID_BOUNDS.max),
+      GRID_BOUNDS.min,
+      GRID_BOUNDS.max,
+      GRID_BOUNDS.min,
+      GRID_BOUNDS.normalization
+    );
+  }
+
+  getElevationValue(points) {
+    return Math.min(GRID_BOUNDS.max, points.length);
   }
 
   renderLayers = () => {
@@ -87,20 +102,21 @@ class MapComponent extends React.Component {
         id: 'sensor_mapping',
         colorRange: [head(COLOR_RANGE)],
         data: sensors,
-        elevationRange: [0, 10],
+        elevationRange: [0, 1],
         elevationScale: 1,
         ...HEXAGON_CONFIG
       }),
       new HexagonLayer({
         id: 'detection_mapping',
         colorRange: COLOR_RANGE,
+        lightSettings: LIGHT_SETTINGS,
         data: droneData,
-        elevationDomain: [0, 10],
-        colorDomain: [0, 1],
-        elevationRange: [0, 1000],
-        elevationScale: 2,
-        getColorValue: this.getColorValue,
-        getElevation: this.getElevation,
+        elevationDomain: [GRID_BOUNDS.min, GRID_BOUNDS.max],
+        colorDomain: [GRID_BOUNDS.min, GRID_BOUNDS.normalization],
+        elevationRange: [0, 400],
+        elevationScale: 5,
+        getColorValue: this.getColorValue.bind(this),
+        getElevationValue: this.getElevationValue.bind(this),
         ...HEXAGON_CONFIG
       })
     ];
@@ -129,6 +145,7 @@ class MapComponent extends React.Component {
                   layers={this.renderLayers()}
                   width="100%"
                   height={500}
+                  controller={true}
                   initialViewState={INITIAL_VIEW_STATE}
                   viewState={this.state.viewState}
                 >
