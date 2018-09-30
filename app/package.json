@@ -72,6 +72,6 @@
     "react-dom": "^15.0.0",
     "react-geolocated": "^2.4.0",
     "react-map-gl": "^3.3.5",
-    "socket.io": "^2.1.1"
+    "socket.io-client": "^2.1.1"
   }
 }

@@ -1,24 +1,32 @@
-var io = require('socket.io')(http);
+import io from 'socket.io-client';
 
 export class DataSocket {
   constructor() {
-    // Empty
+    this.socket = null;
+  }
+
+  connected() {
+    return this.socket && this.socket.connected;
   }
 
   connect(url) {
-    window.socket = io(url);
+    if(!this.socket) {
+      this.socket = io(url);
+    }
   }
 
   close() {
-    window.socket.close();
+    if(this.socket) {
+      this.socket.close();
+    }
   }
 
   addListener(tag, callback) {
-    window.socket.on(tag, callback);
+    this.socket.on(tag, callback);
   }
 
   removeListener(tag) {
-    window.socket.off(tag);
+    this.socket.off(tag);
   }
 
 }

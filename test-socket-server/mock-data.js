@@ -1,4 +1,4 @@
-export const mockData = [
+module.exports = [
   {'longitude': -97.73771138670872, 'latitude': 30.27157972850839, 'isDrone': 0},
   {'longitude': -97.75032319032789, 'latitude': 30.2585989650247, 'isDrone': 1},
   {'longitude': -97.74289794077598, 'latitude': 30.259147668770524, 'isDrone': 0},
