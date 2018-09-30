@@ -4,6 +4,7 @@ import '../styles/App.css';
 import MapComponent from './MapComponent';
 import DataLoggerComponent from './DataLoggerComponent';
 import LoadingComponent from './LoadingComponent';
+import NavBarComponent from './NavBarComponent';
 import { SocketService } from '../services/Socket';
 
 import config from 'config';
@@ -57,6 +58,7 @@ class AppComponent extends React.Component {
   render() {
     const app = this.state.appLoaded ?
     <div className="index">
+      <NavBarComponent />
       <MapComponent inputData={this.state.inputData}  />
       <DataLoggerComponent inputData={this.state.inputData} />
     </div> : <LoadingComponent />;

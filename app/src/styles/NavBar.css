@@ -1,0 +1,12 @@
+.navbar-component {
+  flex: 1;
+  height: 65px;
+  max-height: 65px;
+}
+
+.index img.nav-logo {
+  background: transparent;
+  width: 200px;
+  margin: 0;
+  margin-left: 20px;
+}
