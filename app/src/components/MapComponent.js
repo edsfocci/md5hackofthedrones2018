@@ -140,23 +140,6 @@ class MapComponent extends React.Component {
                     />
                 </DeckGL>
               </div>
-              {/* {
-                !isGeolocationAvailable ?
-                <div>Your browser does not support Geolocation</div> :
-                (
-                  !isGeolocationEnabled ?
-                  <div>Geolocation is not enabled</div> :
-                  (
-                    coords ?
-                    (
-                      <div>
-                        <div>Latitude {coords.latitude}</div>
-                        <div>Longitude {coords.longitude}</div>
-                      </div>
-                    ) : <div>Fetching location...</div>
-                  )
-                )
-              } */}
             </div>
           ) : <div>Fetching Data</div>
         }

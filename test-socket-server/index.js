@@ -17,7 +17,7 @@ function emitMockData(socket) {
   let currentIndex = 0;
   const mockStream = setInterval(
     () => mockMessage(),
-    50
+    100
   );
 
   function mockMessage() {

@@ -4,7 +4,7 @@ import '../styles/App.css';
 import MapComponent from './MapComponent';
 import DataLoggerComponent from './DataLoggerComponent';
 import LoadingComponent from './LoadingComponent';
-import { DataSocket } from '../services/Socket.service';
+import { SocketService } from '../services/Socket';
 
 import config from 'config';
 
@@ -15,7 +15,7 @@ class AppComponent extends React.Component {
       inputData: [],
       isConnected: false
     };
-    this.SocketService = new DataSocket();
+    this.SocketService = new SocketService();
   }
 
   componentDidMount() {
@@ -43,7 +43,7 @@ class AppComponent extends React.Component {
   }
 
   render() {
-    const app = this.state.isConnected ?
+    const app = this.state.isConnected || this.state.inputData.length > 50 ?
     <div className="index">
       <MapComponent inputData={this.state.inputData}  />
       <DataLoggerComponent inputData={this.state.inputData} />
