@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
 	# Pull get the random data
 	print('Getting data')
-	bounds = get_bounds(AUSTIN_LAT_LONG)
+	bounds = get_bounds(AUSTIN_LAT_LONG, shift=0.01)
 
 	client.ensure_topic_exists('sensors')
 	client.ensure_topic_exists('drone')
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
 	# Run the service and push the data
 	print('Pushing data')
-	for _ in range(10000):
+	for _ in range(20000):
 		# Get some random points
 		points = get_multiple_points(bounds)
 		for point in points:

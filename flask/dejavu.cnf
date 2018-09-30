@@ -1,0 +1,8 @@
+{
+    "database": {
+        "host": "md5hackofthedrone.cj9chm2yvbjb.us-east-1.rds.amazonaws.com",
+        "user": "dronesofprey",
+        "passwd": "md5hack2018", 
+        "db": "dejavu"
+    }
+}
